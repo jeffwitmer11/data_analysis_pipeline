@@ -27,4 +27,5 @@ if __name__ == "__main__":
     data1 = json.loads(data0)
     data = data1[0]
 
-    recursive_items(data)
+    for key, value in recursive_items(data):
+        print(key)
