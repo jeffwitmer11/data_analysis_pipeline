@@ -23,7 +23,10 @@ init:
 
 process:
 # . put your code here
+	python3 process/my_app.py
 
+run:
+	docker run manifold_process:latest
 test:
 # . put your code here 
 
