@@ -30,12 +30,20 @@ class data_file:
 def process():
     data_dir = 'data'
     file_list = get_files_from_path(path=data_dir, extension='.json')
+    output_file_path = "output"
     #n_files = len(file_list)
 
     total_data = pd.DataFrame()
     for i, file_path in enumerate(file_list):
-        df = load_json_to_df(file_path)
-        df["file_name"] = file_path
+        data =  data_file(file_path)
+        data.read_to_df()
+
+        #TODO: implement write_records into 
+        data.write_records()
+
+        #df = load_json_to_df(file_path)
+        #df["file_name"] = file_path
+        
         total_data = pd.concat([total_data, df])
 
         #print("{:.0%} complete".format(i/n_files))
@@ -86,13 +94,6 @@ def q3_fun(df):
     print(q3)
     return q3
 
-#https://stackoverflow.com/questions/39233973/get-all-keys-of-a-nested-dictionary
-#def recursive_items(dictionary):
- #   for key, value in dictionary.items():
-  #      if type(value) is dict:
-   #         yield from recursive_items(value)
-    #    else:
-     #       yield (key, value)
 
 # https://stackoverflow.com/questions/68327646/how-can-we-read-all-json-files-from-all-sub-directory
 def get_files_from_path(path: str='.', extension: str=None) -> list:
