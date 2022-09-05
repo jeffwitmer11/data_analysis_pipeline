@@ -18,15 +18,15 @@ apt:
 	echo "Remove me to rerun apt" > apt
 
 init:
-	docker-compose build
-	docker-compose up -d
+# docker-compose build
+# docker-compose up -d
+	docker build -t my_app .
 
 process:
 # . put your code here
-	python3 process/my_app.py
+#	python3 process/my_app.py
+	docker run my_app
 
-run:
-	docker run manifold_process:latest
 test:
 # . put your code here 
 

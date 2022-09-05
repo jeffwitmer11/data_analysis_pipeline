@@ -19,4 +19,4 @@ RUN python3 -m pip install -r requirements.txt
 # add app
 COPY . .
 
-CMD [ "python", "./process/my_app.py"]
+CMD [ "python", "./process/process.py"]

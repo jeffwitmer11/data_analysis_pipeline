@@ -1,5 +1,6 @@
 import json
 import os
+import sys
 import pandas as pd
 
 class data_file:
@@ -30,9 +31,7 @@ class data_file:
 
     def write_output(self, file_path):
         df = self.processed_records
-
-        output_path='processed_data_test.csv'
-        df.to_csv(output_path, mode='a', header=not os.path.exists(output_path))
+        df.to_csv(file_path, mode='a', header=not os.path.exists(file_path))
 
         return self
 
@@ -58,24 +57,34 @@ class data_file:
         self.num_processed = sum(df_proc_skip["process"])
         self.num_skipped = sum(df_proc_skip["skip"])
 
-    
+
 def process():
     data_dir = 'data'
     file_list = get_files_from_path(path=data_dir, extension='.json')
-    output_file_path = "output"
-    #n_files = len(file_list)
+    n_files = len(file_list)
 
-    total_data = pd.DataFrame()
+    output_file_path = 'processed_data_test.csv'
+    if os.path.exists(output_file_path):
+        os.remove(output_file_path)
+    
     zip_codes = pd.DataFrame()
     top_num_proc = pd.Series(dtype="int64")
     top_num_skip = pd.Series(dtype="int64")
 
     for i, file_path in enumerate(file_list):
+
+        # Prgress Bar
+        # https://stackoverflow.com/q/3002085
+        j = (i + 1) / n_files
+        sys.stdout.write('\r')
+        sys.stdout.write("[%-20s] %d%%" % ('='*int(20*j), 100*j))
+        sys.stdout.flush()
+        
         data = (data_file(file_path)
             .read_data()
             .process_records()
-            .write_output()
-        #data.write_to_file()
+            .write_output(output_file_path)
+        )
         
         # Top Files by Records Processed
         top_num_proc = (pd.concat([top_num_proc, 
@@ -89,85 +98,29 @@ def process():
             .nlargest(10)
             )
  
-        # Zip Code
-        #zip_codes_i = (data.processed_records
-         #   .groupby(by = "zip_code")
-          #  .agg({"last_name":"nunique"})
-            #.nlargest(10, "last_name")
-            #.sort_values(by = "last_name", ascending=False)
-            #.iloc[0:9]
-        #)
+        # Top Zip Codes by Number of Unique Last Names
+        zip_codes_i = (data.processed_records
+            .groupby(by = "zip_code")
+            .agg({"last_name":"nunique"})
+            .nlargest(10, "last_name")
+        )
+        
+        zip_codes = (pd.concat([zip_codes, zip_codes_i])
+           .nlargest(10, "last_name")
+        )
 
-        #zip_codes = (zip_codes.append(zip_codes_i)
-         #   .nlargest(10, "last_name")
-        #)
-            #.sort_values(by = "last_name", ascending=False)
-            #.iloc[0:9])
-
-    #print(zip_codes)
+    print(zip_codes)
     print(top_num_skip)
     print(top_num_proc)
 
     return 0
 
-# must return colmns "process" and "skip
-# Index of df and df_proc_skip should be the same
-# def process_or_skip(self):
-#     skipped_locs = (
-#         .isnull()
-#         .all(axis=1)
-#     )
-#     df_proc_skip = pd.DataFrame(index=df.index)
-#     df_proc_skip["skip"] = skipped_locs
 
-#     #df_proc_skip["skip"] = (
-#      #   df["first_name"].isnull() & 
-#       # df["last_name"].isnull() & 
-#         #df["zip_code"].isnull())
-
-#     df_proc_skip["process"] = ~df_proc_skip["skip"]
-
-#     return df_proc_skip
-
-def q1_fun(df):
-    q1 = (df
-        .groupby(by = "file_name")
-        .agg({"process":"sum"})
-        .sort_values(by = "process", ascending=False)
-        .iloc[0:9]
-        )
-    print(q1)
-    return q1
-
-def q2_fun(df):
-    q2 = (df
-        .groupby(by = "file_name")
-        .agg({"skip":"sum"})
-        .sort_values(by = "skip", ascending=False)
-        .iloc[0:9]
-        )
-    print(q2)
-    return q2
-
-def q3_fun(df):
-    q3 = (df
-        .groupby(by = "zip_code")
-        .agg({"last_name":"nunique"})
-        .sort_values(by = "last_name", ascending=False)
-        .iloc[0:9]
-        )
-    print(q3)
-    return q3
-
-
-# https://stackoverflow.com/questions/68327646/how-can-we-read-all-json-files-from-all-sub-directory
 def get_files_from_path(path: str='.', extension: str=None) -> list:
 
     """return list of files from path"""
-    # see the answer on the link below for a ridiculously 
-    # complete answer for this. I tend to use this one.
-    # note that it also goes into subdirs of the path
-    # https://stackoverflow.com/a/41447012/9267296
+    # https://stackoverflow.com/q/68327646
+    
     result = []
     for subdir, dirs, files in os.walk(path):
         for filename in files:
@@ -180,6 +133,7 @@ def get_files_from_path(path: str='.', extension: str=None) -> list:
 
 def load_json_to_df(file_path):
 
+    # To do add with 
     f = open(file_path)
     s = f.read()
     f.close()
@@ -190,118 +144,122 @@ def load_json_to_df(file_path):
     return df
 
 
-
 if __name__ == "__main__":
-
-    pd.Series(6, index=["hello/my/file"])
-
-    df = pd.DataFrame({"A":[1.5,2.3,3.6], "B":[4,5,6], "C":[7.1,8.8,9.3]})
-    df
-    cols = ["A", "C", "D"]
-    df[set(cols).intersection(df.columns)].apply(round)
-    df.all(axis=1)
-
-    df2 = df.reindex(cols, axis=1)
-    df2
-    df2.isnull().all(axis=1)
     process()
 
-    n1 = 3
-    n2 = 4
+    df = pd.DataFrame({"A":[1,2,3], "B":[2,None,4]})
+    print(df)
+    df.isnull()
 
-    n_list = pd.Series(dtype="int64")
-    n_list = pd.concat([n_list, pd.Series(n1)])
-    n_list
-    n_list = pd.concat([n_list, pd.Series(n2)])
-    n_list
-    n_list.nlargest(1)
+    # pd.Series(6, index=["hello/my/file"])
 
-    dat1 = data_file("data/altius/group00/client00/36526.json")
-    dat1.read_to_df()
-    dat1.process_records()
-    #dat1.write_to_file()
+    # df = pd.DataFrame({"A":[1.5,2.3,3.6], "B":[4,5,6], "C":[7.1,8.8,9.3]})
+    # df
+    # cols = ["A", "C", "D"]
+    # df[set(cols).intersection(df.columns)].apply(round)
+    # df.all(axis=1)
+
+    # df2 = df.reindex(cols, axis=1)
+    # df2
+    # df2.isnull().all(axis=1)
+    # process()
+
+    # n1 = 3
+    # n2 = 4
+
+    # n_list = pd.Series(dtype="int64")
+    # n_list = pd.concat([n_list, pd.Series(n1)])
+    # n_list
+    # n_list = pd.concat([n_list, pd.Series(n2)])
+    # n_list
+    # n_list.nlargest(1)
+
+    # dat1 = data_file("data/altius/group00/client00/36526.json")
+    # dat1.read_to_df()
+    # dat1.process_records()
+    # #dat1.write_to_file()
     
-    dat2 = data_file("data/chemecca/study00/org00/set00/15761.json")
-    dat2.read_to_df()
-    dat2.process_records()
+    # dat2 = data_file("data/chemecca/study00/org00/set00/15761.json")
+    # dat2.read_to_df()
+    # dat2.process_records()
 
-    dat2.processed_records
+    # dat2.processed_records
 
-    zip_codes = pd.DataFrame()
-    zip_codes_i = (dat2.processed_records
-            .groupby(by = "zip_code")
-            .agg({"last_name":"nunique"})
-            .sort_values(by = "last_name", ascending=False)
-            .iloc[0:9]
-        )
-    zip_codes_i
+    # zip_codes = pd.DataFrame()
+    # zip_codes_i = (dat2.processed_records
+    #         .groupby(by = "zip_code")
+    #         .agg({"last_name":"nunique"})
+    #         .sort_values(by = "last_name", ascending=False)
+    #         .iloc[0:9]
+    #     )
+    # zip_codes_i
 
-    zip_codes = (zip_codes.append(zip_codes_i)
-            .sort_values(by = "last_name", ascending=False))
-            #.iloc[0:9])
+    # zip_codes = (zip_codes.append(zip_codes_i)
+    #         .sort_values(by = "last_name", ascending=False))
+    #         #.iloc[0:9])
 
-    zip_codes
+    # zip_codes
 
-    df = pd.DataFrame()
-    df.empty
-    )
-    file1 = data_file()
+    # df = pd.DataFrame()
+    # df.empty
+    # )
+    # file1 = data_file()
 
-    df_proc = process()
-    df_proc_skipped = write_or_skip(df_proc)
+    # df_proc = process()
+    # df_proc_skipped = write_or_skip(df_proc)
 
-    print(df_proc)
-    df_proc.to_csv('processed_data.csv')
-    df_proc_skipped.to_csv('processed_data_skipped.csv')
+    # print(df_proc)
+    # df_proc.to_csv('processed_data.csv')
+    # df_proc_skipped.to_csv('processed_data_skipped.csv')
     
-    len(df_proc)
-    len(df_proc_skipped)
+    # len(df_proc)
+    # len(df_proc_skipped)
 
 
-    q1_df = q1_fun(df_proc_skipped)
-    q1_df.to_csv('q1_ans.csv')
+    # q1_df = q1_fun(df_proc_skipped)
+    # q1_df.to_csv('q1_ans.csv')
 
-    q2_df = q2_fun(df_proc_skipped)
-    q2_df.to_csv('q2_ans.csv')
+    # q2_df = q2_fun(df_proc_skipped)
+    # q2_df.to_csv('q2_ans.csv')
 
-    q3_df = q3_fun(df_proc_skipped)
-    q3_df.to_csv('q3_ans.csv')
-
-
-    dat1 = data_file("data/altius/group00/client00/36526.json")
-    dat1.records
-    dat1.records_info
-    print(dat1.num_processed)
-    print(dat1.num_skipped)
-
-    df1 = dat1.read_to_df()
-    dat1.records
-    dat1.records_info
-    print(dat1.num_processed)
-    print(dat1.num_skipped)
-
-    dat1.write_to_file("test")
-
-    dat2 = data_file("data/altius/group00/client00/36526.json")
-    dat2.read_to_df()
-    dat2.write_to_file("test")
-
-    dat1.records
-    dat1.records_info
-    print(dat1.num_processed)
-    print(dat1.num_skipped)
+    # q3_df = q3_fun(df_proc_skipped)
+    # q3_df.to_csv('q3_ans.csv')
 
 
-    whatamI = df1["last_name"].isnull()
-    whatamI.index
-    print(dat1.records_processed)
+    # dat1 = data_file("data/altius/group00/client00/36526.json")
+    # dat1.records
+    # dat1.records_info
+    # print(dat1.num_processed)
+    # print(dat1.num_skipped)
 
-    q2 = (df_proc
-        .groupby(by = "file_name")
-        .agg({"skip":"sum"})
-        #.sort_values(by = "skip", ascending=False)
-        .iloc[0:9]
-        )
+    # df1 = dat1.read_to_df()
+    # dat1.records
+    # dat1.records_info
+    # print(dat1.num_processed)
+    # print(dat1.num_skipped)
+
+    # dat1.write_to_file("test")
+
+    # dat2 = data_file("data/altius/group00/client00/36526.json")
+    # dat2.read_to_df()
+    # dat2.write_to_file("test")
+
+    # dat1.records
+    # dat1.records_info
+    # print(dat1.num_processed)
+    # print(dat1.num_skipped)
+
+
+    # whatamI = df1["last_name"].isnull()
+    # whatamI.index
+    # print(dat1.records_processed)
+
+    # q2 = (df_proc
+    #     .groupby(by = "file_name")
+    #     .agg({"skip":"sum"})
+    #     #.sort_values(by = "skip", ascending=False)
+    #     .iloc[0:9]
+    #     )
 
     
 
