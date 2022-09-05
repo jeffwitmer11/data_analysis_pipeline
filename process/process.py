@@ -5,28 +5,60 @@ import pandas as pd
 class data_file:
     def __init__(self, file_path):
         self.file_path = file_path
+        self.required_cols = ["first_name", "middle_name", "last_name", "zip_code"]
         self.num_processed = None
         self.num_skipped = None
-        self.records = pd.DataFrame()
+        self.all_records = pd.DataFrame()
+        self.processed_records = pd.DataFrame()
         self.records_info = pd.DataFrame()
 
-    def read_to_df(self):
-        self.records = load_json_to_df(self.file_path)
-        
-        self.set_records_info(self.records)
+    def read_data(self):
+        df = load_json_to_df(self.file_path)
 
-        return self.records
+        self.all_records = df.reindex(self.required_cols, axis=1)
+        self.set_records_info(self.all_records)
+
+        return self
+    
+    def process_records(self):
+        self.set_records_info(self.all_records)
+
+        df = self.all_records.loc[self.records_info["process"]] 
+        self.processed_records = df
+
+        return self
+
+    def write_output(self, file_path):
+        df = self.processed_records
+
+        output_path='processed_data_test.csv'
+        df.to_csv(output_path, mode='a', header=not os.path.exists(output_path))
+
+        return self
+
+    def determine_process_or_skip(self, df):
+        skipped_locs = (df
+            .isnull()
+            .all(axis=1)
+        )
+
+        df_proc_skip = pd.DataFrame(
+            {"skip":skipped_locs,
+            "process":~skipped_locs},
+            index=df.index)
+
+        return df_proc_skip
 
     def set_records_info(self, df):
         
-        df_proc_skip = process_or_skip(df)
+        df_proc_skip = self.determine_process_or_skip(df)
         df_proc_skip["file_name"] = self.file_path
         self.records_info = df_proc_skip
 
         self.num_processed = sum(df_proc_skip["process"])
         self.num_skipped = sum(df_proc_skip["skip"])
 
-
+    
 def process():
     data_dir = 'data'
     file_list = get_files_from_path(path=data_dir, extension='.json')
@@ -34,35 +66,68 @@ def process():
     #n_files = len(file_list)
 
     total_data = pd.DataFrame()
+    zip_codes = pd.DataFrame()
+    top_num_proc = pd.Series(dtype="int64")
+    top_num_skip = pd.Series(dtype="int64")
+
     for i, file_path in enumerate(file_list):
-        data =  data_file(file_path)
-        data.read_to_df()
-
-        #TODO: implement write_records into 
-        data.write_records()
-
-        #df = load_json_to_df(file_path)
-        #df["file_name"] = file_path
+        data = (data_file(file_path)
+            .read_data()
+            .process_records()
+            .write_output()
+        #data.write_to_file()
         
-        total_data = pd.concat([total_data, df])
+        # Top Files by Records Processed
+        top_num_proc = (pd.concat([top_num_proc, 
+            pd.Series(data.num_processed, index=[data.file_path])])
+            .nlargest(10)
+            )
+        
+         # Top Files by Records Skipped
+        top_num_skip = (pd.concat([top_num_skip, 
+            pd.Series(data.num_skipped, index=[data.file_path])])
+            .nlargest(10)
+            )
+ 
+        # Zip Code
+        #zip_codes_i = (data.processed_records
+         #   .groupby(by = "zip_code")
+          #  .agg({"last_name":"nunique"})
+            #.nlargest(10, "last_name")
+            #.sort_values(by = "last_name", ascending=False)
+            #.iloc[0:9]
+        #)
 
-        #print("{:.0%} complete".format(i/n_files))
+        #zip_codes = (zip_codes.append(zip_codes_i)
+         #   .nlargest(10, "last_name")
+        #)
+            #.sort_values(by = "last_name", ascending=False)
+            #.iloc[0:9])
 
-    #df.to_csv('processed_data.csv')
-    return total_data
+    #print(zip_codes)
+    print(top_num_skip)
+    print(top_num_proc)
 
-def process_or_skip(df):
-    df_proc_skip = pd.DataFrame(index=df.index)
-    
-    df_proc_skip["skip"] = (
-        df["first_name"].isnull() & 
-        df["middle_name"].isnull() & 
-        df["last_name"].isnull() & 
-        df["zip_code"].isnull())
+    return 0
 
-    df_proc_skip["process"] = ~df_proc_skip["skip"]
+# must return colmns "process" and "skip
+# Index of df and df_proc_skip should be the same
+# def process_or_skip(self):
+#     skipped_locs = (
+#         .isnull()
+#         .all(axis=1)
+#     )
+#     df_proc_skip = pd.DataFrame(index=df.index)
+#     df_proc_skip["skip"] = skipped_locs
 
-    return df_proc_skip
+#     #df_proc_skip["skip"] = (
+#      #   df["first_name"].isnull() & 
+#       # df["last_name"].isnull() & 
+#         #df["zip_code"].isnull())
+
+#     df_proc_skip["process"] = ~df_proc_skip["skip"]
+
+#     return df_proc_skip
 
 def q1_fun(df):
     q1 = (df
@@ -127,6 +192,61 @@ def load_json_to_df(file_path):
 
 
 if __name__ == "__main__":
+
+    pd.Series(6, index=["hello/my/file"])
+
+    df = pd.DataFrame({"A":[1.5,2.3,3.6], "B":[4,5,6], "C":[7.1,8.8,9.3]})
+    df
+    cols = ["A", "C", "D"]
+    df[set(cols).intersection(df.columns)].apply(round)
+    df.all(axis=1)
+
+    df2 = df.reindex(cols, axis=1)
+    df2
+    df2.isnull().all(axis=1)
+    process()
+
+    n1 = 3
+    n2 = 4
+
+    n_list = pd.Series(dtype="int64")
+    n_list = pd.concat([n_list, pd.Series(n1)])
+    n_list
+    n_list = pd.concat([n_list, pd.Series(n2)])
+    n_list
+    n_list.nlargest(1)
+
+    dat1 = data_file("data/altius/group00/client00/36526.json")
+    dat1.read_to_df()
+    dat1.process_records()
+    #dat1.write_to_file()
+    
+    dat2 = data_file("data/chemecca/study00/org00/set00/15761.json")
+    dat2.read_to_df()
+    dat2.process_records()
+
+    dat2.processed_records
+
+    zip_codes = pd.DataFrame()
+    zip_codes_i = (dat2.processed_records
+            .groupby(by = "zip_code")
+            .agg({"last_name":"nunique"})
+            .sort_values(by = "last_name", ascending=False)
+            .iloc[0:9]
+        )
+    zip_codes_i
+
+    zip_codes = (zip_codes.append(zip_codes_i)
+            .sort_values(by = "last_name", ascending=False))
+            #.iloc[0:9])
+
+    zip_codes
+
+    df = pd.DataFrame()
+    df.empty
+    )
+    file1 = data_file()
+
     df_proc = process()
     df_proc_skipped = write_or_skip(df_proc)
 
@@ -159,6 +279,18 @@ if __name__ == "__main__":
     dat1.records_info
     print(dat1.num_processed)
     print(dat1.num_skipped)
+
+    dat1.write_to_file("test")
+
+    dat2 = data_file("data/altius/group00/client00/36526.json")
+    dat2.read_to_df()
+    dat2.write_to_file("test")
+
+    dat1.records
+    dat1.records_info
+    print(dat1.num_processed)
+    print(dat1.num_skipped)
+
 
     whatamI = df1["last_name"].isnull()
     whatamI.index
