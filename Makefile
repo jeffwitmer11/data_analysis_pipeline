@@ -28,5 +28,8 @@ process:
 	docker run my_app
 
 test:
+	pytest
+	pylint process --good-names=i,df
+	
 # . put your code here 
 

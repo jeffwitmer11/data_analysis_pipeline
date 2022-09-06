@@ -29,7 +29,7 @@ def test_load_json_to_df(temp_dir_with_2_json_files):
 
 def test_determine_process_or_skip(temp_dir_with_2_json_files):
     file_path = temp_dir_with_2_json_files / 'file_1.json'
-    dat = process.data_file(file_path)
+    dat = process.DataFile(file_path)
 
     df = pd.DataFrame({"A":[1,None,3], "B":[2,None,4]})
     res = dat.determine_process_or_skip(df)
