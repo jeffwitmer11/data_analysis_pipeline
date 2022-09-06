@@ -23,13 +23,10 @@ init:
 	docker build -t my_app .
 
 process:
-# . put your code here
-#	python3 process/my_app.py
 	docker run my_app
 
 test:
 	pytest
-	pylint process --good-names=i,df
-	
-# . put your code here 
+	pylint process --good-names=i,j,df
+
 
