@@ -1,17 +1,18 @@
-.PHONY: init help test reqs
+.PHONY: init help test reqs process
 
 objects = $(wildcard *.in)
 outputs := $(objects:.in=.txt)
 
 help:
-	@echo "Hello World!"
-	@echo "'make init' to set up environment dependencies and generate data"
+	@echo "Manifold Data Processing Application!"
 	@echo ""
-	@echo "EVERYTHING BELOW IS NOT IMPLEMENTED:"
+	@echo "Author: Jeff Witmer"
+	@echo "'make build' to build the Docker image."
+	@echo "'make process' to start the data processing."
+	@echo "'make test'" to run unit tests."
 # @echo "'make config' to change defaults"
 # @echo "'make run' to run local webserver version"
 # @echo "'make build' to, um, build"
-	@echo "'make test' to run tests"
 
 apt:
 	sudo apt install awscli python3-pytest
@@ -20,6 +21,8 @@ apt:
 init:
 # docker-compose build
 # docker-compose up -d
+
+build:
 	docker build -t my_app .
 
 process:

@@ -168,6 +168,7 @@ def process():
     print("Data Loading complete")
     print()
 
+    # TODO: Reformat outputs
     print("Top Zip Codes by Number of Unique Last Names")
     print(zip_codes)
     print()
@@ -200,10 +201,8 @@ def get_files_from_path(path: str = '.', extension: str = None) -> list:
 def load_json_to_df(file_path):
     """Load a JSON file to a pandas DataFrame"""
 
-    # To do add with
-    file = open(file_path)
-    file_text = file.read()
-    file.close()
+    with open(file_path) as file:
+        file_text = file.read()
 
     json_load_1 = json.loads(file_text)
     json_load_2 = json.loads(json_load_1)

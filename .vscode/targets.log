@@ -7,7 +7,7 @@ make all --print-data-base --no-builtin-variables --no-builtin-rules --question
 
 # This program built for i386-apple-darwin11.3.0
 
-# Make data base, printed on Mon Sep  5 17:13:45 2022
+# Make data base, printed on Wed Sep  7 15:47:54 2022
 
 # Variables
 
@@ -152,9 +152,9 @@ LANG = C
 
 # Directories
 
-# . (device 16777220, inode 20725776): 19 files, no impossibilities.
+# . (device 16777220, inode 20725776): 15 files, no impossibilities.
 
-# 19 files, no impossibilities in 1 directories.
+# 15 files, no impossibilities in 1 directories.
 
 # Implicit Rules
 
@@ -180,8 +180,8 @@ process:
 #  Implicit rule search has not been done.
 #  Modification time never checked.
 #  File has not been updated.
-#  commands to execute (from `Makefile', line 26):
-	python3 process/my_app.py
+#  commands to execute (from `Makefile', line 29):
+	docker run my_app
 	
 
 # Not a target:
@@ -193,7 +193,7 @@ process:
 # Not a target:
 Makefile:
 #  Implicit rule search has been done.
-#  Last modified 2022-08-28 21:02:47
+#  Last modified 2022-09-06 07:58:53
 #  File has been updated.
 #  Successfully updated.
 # variable set hash-table stats:
@@ -204,6 +204,18 @@ test:
 #  Implicit rule search has not been done.
 #  File does not exist.
 #  File has not been updated.
+#  commands to execute (from `Makefile', line 32):
+	pytest
+	pylint process --good-names=i,j,df
+	
+
+build:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+#  commands to execute (from `Makefile', line 26):
+	docker build -t my_app .
+	
 
 help:
 #  Phony target (prerequisite of .PHONY).
@@ -211,11 +223,12 @@ help:
 #  File does not exist.
 #  File has not been updated.
 #  commands to execute (from `Makefile', line 7):
-	@echo "Hello World!"
-	@echo "'make init' to set up environment dependencies and generate data"
+	@echo "Manifold Data Processing Application!"
 	@echo ""
-	@echo "EVERYTHING BELOW IS NOT IMPLEMENTED:"
-	@echo "'make test' to run tests"
+	@echo "Author: Jeff Witmer"
+	@echo "'make build' to build the Docker image."
+	@echo "'make process' to start the data processing."
+	@echo "'make test'" to run unit tests."
 	
 
 # Not a target:
@@ -224,23 +237,11 @@ help:
 #  Modification time never checked.
 #  File has not been updated.
 
-run:
-#  Implicit rule search has not been done.
-#  Modification time never checked.
-#  File has not been updated.
-#  commands to execute (from `Makefile', line 29):
-	docker run manifold_process:latest
-	
-
 init:
 #  Phony target (prerequisite of .PHONY).
 #  Implicit rule search has not been done.
 #  File does not exist.
 #  File has not been updated.
-#  commands to execute (from `Makefile', line 21):
-	docker-compose build
-	docker-compose up -d
-	
 
 reqs:
 #  Phony target (prerequisite of .PHONY).
@@ -252,7 +253,7 @@ apt:
 #  Implicit rule search has not been done.
 #  Modification time never checked.
 #  File has not been updated.
-#  commands to execute (from `Makefile', line 17):
+#  commands to execute (from `Makefile', line 18):
 	sudo apt install awscli python3-pytest
 	echo "Remove me to rerun apt" > apt
 	
@@ -270,7 +271,7 @@ apt:
 # strcache size: total = 4096 / max = 4096 / min = 4096 / avg = 4096
 # strcache free: total = 4087 / max = 4087 / min = 4087 / avg = 4087
 
-# Finished Make data base on Mon Sep  5 17:13:45 2022
+# Finished Make data base on Wed Sep  7 15:47:54 2022
 
  
 make: *** No rule to make target `all'.  Stop.
