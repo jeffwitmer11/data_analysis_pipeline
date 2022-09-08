@@ -24,12 +24,16 @@ init:
 
 build:
 	docker build -t my_app .
+	docker build -t manifold_data_process_test --target test .
 
 process:
 	docker run my_app
 
 test:
-	pytest
-	pylint process --good-names=i,j,df
+	docker run manifold_data_process_test
+# pytest
+
+testtest:
+	pylint process --good-names=i,j,df ||:
 
 

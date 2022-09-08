@@ -42,7 +42,11 @@ class DataFile:
         """Read a JSON file and store all records read in"""
         df = load_json_to_df(self.file_path)
 
+        # Downstream analysis will require certian columns to be preset. Add
+        # them if they are missing.
         self.all_records = df.reindex(self.required_cols, axis=1)
+
+        # Determine and store summary info, can be used for downstream analysis
         self.set_records_info(self.all_records)
 
         return self

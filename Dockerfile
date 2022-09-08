@@ -1,5 +1,5 @@
 # pull official base image
-FROM python:3.9-slim-buster
+FROM python:3.9-slim-buster as base
 
 ENV PTYTHONPATH=/app:$PYTHONPATH
 
@@ -20,3 +20,10 @@ RUN python3 -m pip install -r requirements.txt
 COPY . .
 
 CMD [ "python", "./process/process.py"]
+
+FROM base as test
+COPY ./test-requirements.txt .
+RUN python3 -m pip install -r test-requirements.txt
+
+# Pylint always returns an exit code, `||:` effectivley supresses it.
+CMD pylint process --good-names=i,j,df ||:
