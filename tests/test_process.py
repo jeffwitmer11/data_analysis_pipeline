@@ -42,3 +42,39 @@ def test_determine_process_or_skip(temp_dir_with_2_json_files):
     assert((sum(res["process"]) == 2) & (sum(res["skip"]) == 1))
 
 # TODO: Add many more unit tests
+
+# load_json_to_df
+# File that is not a JSON File
+# empty JSON file
+# File in differnt Json format
+# Should return data frame
+
+# test_get_files_from_path
+# empty directory
+# just a file, not a directory supplied
+# must return list
+# must return valid file paths (use a regex to check)
+
+#process
+# Should a Add a new file if file exists
+    # do not append
+    # do not overwite
+# less than ten total records
+# no records in a file
+# no records at all
+# no files in dir
+# more than 10 indentical results
+# columns don't exist in data
+
+# DataFile write output
+# only one header
+
+# DataFile set_records info
+# number of records is the same as data
+# sum(skip) + sum(process) = number of records
+# "skip" and "process" are returned
+# differnt indexs are used
+    # data and info can be joined by index
+
+# self.num_processed == nrow(processed_records)
+# self.num_processed and self.num_skipped match records_info

@@ -40,6 +40,7 @@ class DataFile:
 
     def read_data(self):
         """Read a JSON file and store all records read in"""
+
         df = load_json_to_df(self.file_path)
 
         # Downstream analysis will require certian columns to be preset. Add
@@ -119,8 +120,9 @@ def process():
     # This program iteratively appends data to the output file. It checks if one
     # already exists prior to running, if it does, delete it. Effectively
     # overwriting any past output data files
-    output_file_path = 'my_test_volume/processed_data.csv'
+    output_file_path = 'output/processed_data.csv'
     if os.path.exists(output_file_path):
+        print("Overwriting: " + output_file_path)
         os.remove(output_file_path)
 
     # Initialize object to hold analyze
@@ -128,6 +130,7 @@ def process():
     top_num_proc = pd.Series(dtype="int64")
     top_num_skip = pd.Series(dtype="int64")
 
+    print("Processing Data...")
     for i, file_path in enumerate(file_list):
 
         # Progress Bar
@@ -168,8 +171,8 @@ def process():
             .nlargest(10, "last_name")
         )
 
-    sys.stdout.write('\r')
-    print("Data Loading complete")
+    sys.stdout.write('\n')
+    print("Data Processing Complete")
     print()
 
     # TODO: Reformat outputs
@@ -216,3 +219,12 @@ def load_json_to_df(file_path):
 
 if __name__ == "__main__":
     process()
+
+    load_json_to_df("17259.json")
+    load_json_to_df("data/altius/group00/client00/13583.json")
+    load_json_to_df("sample2.json")
+
+    file_path = "data/altius/group00/client00/13583.json"
+    with open(file_path) as file:
+        json_str = file.read()
+    pd.read_json(json_str, orient='records')

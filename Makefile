@@ -27,19 +27,12 @@ build:
 	docker build -t manifold_data_process_test --target test .
 
 process:
-# docker run --mount type=bind,source="$(pwd)"/output,target=/app my_app
-# docker run --rm -v output:/app/output manifold_data_process
-# docker run --rm --mount source=my_test_volume,target=/app manifold_data_process
-	docker run --rm -v $(PWD)/Test_volume:/app/my_test_volume manifold_data_process
-
-
+	docker run --rm -it -v $(PWD)/output:/app/output manifold_data_process
 
 test:
-	docker run --rm manifold_data_process_test
+	docker run --rm -it manifold_data_process_test
 # pytest
 
-volume:
-	docker volume create --name my_test_volume --opt type=none --opt device=./Test_volume --opt o=bind
 
 
 testtest:
