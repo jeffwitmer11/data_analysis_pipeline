@@ -30,7 +30,7 @@ process:
 # docker run --mount type=bind,source="$(pwd)"/output,target=/app my_app
 # docker run --rm -v output:/app/output manifold_data_process
 # docker run --rm --mount source=my_test_volume,target=/app manifold_data_process
-	docker run --rm -v /Users/jeffwitmer/Documents/repos/manifold/Test_volume:/app/my_test_volume manifold_data_process
+	docker run --rm -v $(PWD)/Test_volume:/app/my_test_volume manifold_data_process
 
 
 
