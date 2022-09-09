@@ -119,7 +119,7 @@ def process():
     # This program iteratively appends data to the output file. It checks if one
     # already exists prior to running, if it does, delete it. Effectively
     # overwriting any past output data files
-    output_file_path = 'processed_data.csv'
+    output_file_path = 'my_test_volume/processed_data.csv'
     if os.path.exists(output_file_path):
         os.remove(output_file_path)
 
