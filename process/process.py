@@ -103,7 +103,7 @@ class DataFile:
         self.num_skipped = sum(df_proc_skip["skip"])
 
 
-def process():
+def process(input_path, output_file_path):
     """Process all JSON files stored in the data folder, write the processed
     records to CSV
 
@@ -113,16 +113,16 @@ def process():
     Descriptive analytics are calculated and displayed in the console.
 
     """
-    data_dir = 'data'
-    file_list = get_files_from_path(path=data_dir, extension='.json')
+    #data_dir = 'data'
+    file_list = get_files_from_path(path=input_path, extension='.json')
     n_files = len(file_list)
 
     # This program iteratively appends data to the output file. It checks if one
     # already exists prior to running, if it does, delete it. Effectively
     # overwriting any past output data files
-    output_file_path = 'output/processed_data.csv'
+    #output_file_path = os.path.join(output_path, 'processed_data.csv')
     if os.path.exists(output_file_path):
-        print("Overwriting: " + output_file_path)
+        print("Overwriting: " + str(output_file_path))
         os.remove(output_file_path)
 
     # Initialize object to hold analyze
@@ -171,6 +171,7 @@ def process():
             .nlargest(10, "last_name")
         )
 
+    # TODO: number of duplicate IDs
     sys.stdout.write('\n')
     print("Data Processing Complete")
     print()
@@ -216,27 +217,116 @@ def load_json_to_df(file_path):
         file_text = file.read()
     # TODO add comment about why I am not using eval
     # TODO add comments explaining double encoding
+    required_cols = ["first_name", "middle_name", "last_name", "zip_code"]
+
     if file_text == '':
-        return pd.DataFrame()
+        df = pd.DataFrame()
+        df = df.reindex(required_cols, axis=1)
 
     else:
         json_dict = json.loads(file_text)
         if isinstance(json_dict, str):
             json_dict = json.loads(json_dict)
 
-        return pd.DataFrame.from_dict(json_dict)
+        df = pd.json_normalize(json_dict)
+        #df = df.reindex(required_cols, axis=1)
+        #print(df.columns)
+        for col in required_cols:
+            matched_cols = df.filter(like=col).columns
+            if any(matched_cols):
+                df[col] = df[matched_cols].bfill(axis=1).iloc[:, 0]
+
+    return df
+
 
 
 if __name__ == "__main__":
-    process()
+    process("data", os.path.join('output', 'processed_data.csv'))
 
-    file_path = "17259.json"
+    """
+    data = [
+        {"id": 1, "user": {"first": "Coleen", "last": "Volk"}},
+        {"person": {"first": "Mark", "last": "Regner"}},
+        {"id": 2, "last": "Raker"},
+        ]
 
+    df = pd.json_normalize(data)
+    df
+    col = 'last'
+    any(df.filter(like=col).columns)
+
+
+    required_cols = ["first_name", "middle_name", "last_name", "zip_code"]
+    required_cols = ["first", "last"]
+    for col in required_cols:
+        df[col] = df[df.filter(like=col).columns].bfill(axis=1).iloc[:, 0]
+    """
+
+    """
+    file_path = "data/altius_copy/group00/client00/13583.json"
     with open(file_path) as file:
         file_text = file.read()
+    json_dict = json.loads(file_text)
+    json_dict = json.loads(json_dict)
+    df = pd.json_normalize(json_dict, meta = ["last_name", "first_name"])
+
+    #with pd.option_context('display.max_rows', None, 'display.max_columns', None):  # more options can be specified also
+    #    print(df)
+
+    def recursive_parser(entry: dict, data_dict: dict, col_name: str = "") -> dict:
+        for key, val in entry.items():
+            extended_col_name = f"{col_name}_{key}" if col_name else key
+            if isinstance(val, dict):
+                recursive_parser(entry[key], data_dict, extended_col_name)
+            else:
+                data_dict[extended_col_name].append(val)
+
+    parsed_data = json_dict
+
+    for entry in entries:
+        recursive_parser(entry, parsed_data, "")
+
+    df = pd.DataFrame(parsed_data)
+
+    data = [
+    {"id": 1, "user": {"first": "Coleen", "last": "Volk"}},
+    {"person": {"first": "Mark", "last": "Regner"}},
+    {"id": 2, "last": "Raker"},
+    ]
+
+    data = [{"user":
+                {"first_name": "Darlene",
+                "middle_name": "Brenda",
+                "last_name": "Puckett", "zip_code": 24065},
+            {"user2":
+                {"first_name": "Darlene",
+                "middle_name": "Brenda",
+                "last_name": "Puckett",
+                "zip_code\: 24065}}]
+
+    df = pd.json_normalize(data)
+    df
+    required_cols = ["first_name", "middle_name", "last_name", "zip_code"]
+    required_cols = ["first", "last"]
+    for col in required_cols:
+        df[col] = df[df.filter(like=col).columns].bfill(axis=1).iloc[:, 0]
+
+    df
+    df['last_name'] = df[["user.last", "person.last", "last"]].bfill(axis=1).iloc[:, 0]
+    df.columns.endswith("last")
+
+
+    df[df.filter(like='last').columns]
+    """
+
+    """
+    file_path = "17259.json"
+
+
     json_load_1 = json.loads(file_text)
     print(json_load_1)
     isinstance(json_load_1, str)
+    """
 
     """
     dict_not_encoded = [{"A":"foo", "B":123}, {"C": "bar", "A":"baz"}]

@@ -76,3 +76,9 @@ def test_load_json_to_df_invalid_json(temp_dir_with_json_files):
     with pytest.raises(Exception):
         process.load_json_to_df(file_path)
 
+"""
+def test_load_json_to_df(temp_dir_with_2_json_files):
+    file_path = temp_dir_with_2_json_files / 'file_1.json'
+    df = process.load_json_to_df(file_path)
+    assert df.shape == (2,3)
+"""
