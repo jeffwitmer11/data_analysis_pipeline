@@ -207,6 +207,7 @@ def get_files_from_path(path: str = '.', extension: str = None) -> list:
 
 def load_json_to_df(file_path):
     """Load a JSON file to a pandas DataFrame"""
+    # TODO change this to match extention in get files from path
     file_extention = os.path.splitext(file_path)[-1].lower()
     if file_extention != ".json":
         raise ValueError('File path has invalid file extention. File extention must be ".json"')
