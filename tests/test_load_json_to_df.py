@@ -3,8 +3,6 @@ import pandas as pd
 import json
 from process import process
 
-# load_json_to_df
-# File that is not a JSON File
 @pytest.fixture(scope="session")
 def temp_dir_with_json_files(tmp_path_factory):
     """Create a temp directory with no JSON files"""
@@ -43,32 +41,6 @@ def temp_dir_with_json_files(tmp_path_factory):
     with open(file_path_6, "a") as file:
         file.write("(" + encoded_data + ")")
 
-    """
-    # A file with a .txt extention but has a vaild JSON format
-    file_path_1 = test_dir / "file_1.txt"
-    file_path_1.touch()
-    file_1 = open(file_path_1, "a")
-    file_1.write(r'"[{\"A\": \"foo\", \"B\": 123}, {\"C\": \"bar\", \"A\":\"baz\"}]"')
-    file_1.close()
-
-    file_path_2 = test_dir / "json_file_double_encoded.json"
-    file_path_2.touch()
-    with open(file_path_2, "a") as file:
-        file.write(r'"[{\"A\": \"foo\", \"B\": 123}, {\"C\": \"bar\", \"A\":\"baz\"}]"')
-
-    file_path_3 = test_dir / "empty_json_file.json"
-    file_path_3.touch()
-
-    file_path_4 = test_dir / "json_file_single_encoded.json"
-    file_path_4.touch()
-    with open(file_path_4, "a") as file:
-        file.write(r'[{\"A\": \"foo\", \"B\": 123}, {\"C\": \"bar\", \"A\":\"baz\"}]')
-
-    file_path_4 = test_dir / "json_file_.json"
-    file_path_4.touch()
-    with open(file_path_4, "a") as file:
-        file.write(r'{\"A\": \"foo\", \"B\": 123}, {\"C\": \"bar\", \"A\":\"baz\"}')
-"""
     return test_dir
 
 def test_load_json_to_df_fails_with_text_file(temp_dir_with_json_files):
