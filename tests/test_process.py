@@ -21,11 +21,6 @@ def temp_dir_with_2_json_files(tmp_path_factory):
 
     return test_dir
 
-def test_get_files_from_path(temp_dir_with_2_json_files):
-    """Test get_files_from_path"""
-    test_len = len(process.get_files_from_path(temp_dir_with_2_json_files))
-    assert test_len == 2
-
 def test_load_json_to_df(temp_dir_with_2_json_files):
     """Test load_json_to_df"""
     file_path = temp_dir_with_2_json_files / 'file_1.json'
@@ -43,17 +38,6 @@ def test_determine_process_or_skip(temp_dir_with_2_json_files):
 
 # TODO: Add many more unit tests
 
-
-
-# File in differnt Json format
-# Not a valid JSON format
-
-
-# test_get_files_from_path
-# empty directory
-# just a file, not a directory supplied
-# must return list
-# must return valid file paths (use a regex to check)
 
 #process
 # Should a Add a new file if file exists
