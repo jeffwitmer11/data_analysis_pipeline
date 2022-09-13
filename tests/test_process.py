@@ -43,11 +43,11 @@ def test_determine_process_or_skip(temp_dir_with_2_json_files):
 
 # TODO: Add many more unit tests
 
-# load_json_to_df
-# File that is not a JSON File
-# empty JSON file
+
+
 # File in differnt Json format
-# Should return data frame
+# Not a valid JSON format
+
 
 # test_get_files_from_path
 # empty directory

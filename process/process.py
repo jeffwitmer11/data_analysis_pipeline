@@ -207,19 +207,53 @@ def get_files_from_path(path: str = '.', extension: str = None) -> list:
 
 def load_json_to_df(file_path):
     """Load a JSON file to a pandas DataFrame"""
+    file_extention = os.path.splitext(file_path)[-1].lower()
+    if file_extention != ".json":
+        raise ValueError('File path has invalid file extention. File extention must be ".json"')
 
     with open(file_path) as file:
         file_text = file.read()
+    # TODO add comment about why I am not using eval
+    # TODO add comments explaining double encoding
+    if file_text == '':
+        return pd.DataFrame()
 
-    json_load_1 = json.loads(file_text)
-    json_load_2 = json.loads(json_load_1)
-    df = pd.DataFrame.from_dict(json_load_2)
-    return df
+    else:
+        json_dict = json.loads(file_text)
+        if isinstance(json_dict, str):
+            json_dict = json.loads(json_dict)
+
+        return pd.DataFrame.from_dict(json_dict)
 
 
 if __name__ == "__main__":
     process()
 
+    file_path = "17259.json"
+
+    with open(file_path) as file:
+        file_text = file.read()
+    json_load_1 = json.loads(file_text)
+    print(json_load_1)
+    isinstance(json_load_1, str)
+
+    """
+    dict_not_encoded = [{"A":"foo", "B":123}, {"C": "bar", "A":"baz"}]
+    encoded_data = json.dumps(dict_not_encoded)
+    double_encoded_data = json.dumps(encoded_data)
+
+    file_path = "17259.json"
+    with open(file_path, "a") as file:
+        file_text = file.write(encoded_data)
+
+    with open(file_path) as file:
+        file_text = file.read()
+    json_load_1 = json.loads(file_text)
+    print(json_load_1)
+    isinstance(json_load_1, str)
+    """
+
+    """
     load_json_to_df("17259.json")
     load_json_to_df("data/altius/group00/client00/13583.json")
     load_json_to_df("sample2.json")
@@ -228,3 +262,15 @@ if __name__ == "__main__":
     with open(file_path) as file:
         json_str = file.read()
     pd.read_json(json_str, orient='records')
+
+    file_path = "17259.json"
+
+    with open(file_path) as file:
+        json_str = file.read()
+    df = pd.DataFrame(eval(json_str)))
+
+    eval(json_str)
+
+    df = pd.DataFrame(eval("[{'code': '8', 'name': 'Human'}, {'code': '11', 'name': 'Orc'}]"))
+    df
+    """

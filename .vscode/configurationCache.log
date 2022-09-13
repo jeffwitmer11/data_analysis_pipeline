@@ -1,1 +1,1 @@
-{"buildTargets":["apt","build","help","init","process","reqs","test"],"launchTargets":[],"customConfigurationProvider":{"workspaceBrowse":{"browsePath":[],"compilerArgs":[]},"fileIndex":[]}}
+{"buildTargets":["apt","build","help","init","process","reqs","test","testtest"],"launchTargets":[],"customConfigurationProvider":{"workspaceBrowse":{"browsePath":[],"compilerArgs":[]},"fileIndex":[]}}
