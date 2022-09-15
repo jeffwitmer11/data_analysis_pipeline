@@ -48,6 +48,7 @@ class DataFile:
         self.all_records = df.reindex(self.required_cols, axis=1)
 
         # Determine and store summary info, can be used for downstream analysis
+        # TODO: Should I remove this since it is called in process_records
         self.set_records_info(self.all_records)
 
         return self
