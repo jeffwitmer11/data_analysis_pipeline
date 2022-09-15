@@ -15,17 +15,17 @@ def temp_dir_with_json_files(tmp_path_factory):
       # A file with a .txt extention but has a vaild JSON format
     file_path_1 = test_dir / "json_single_encoded.txt"
     file_path_1.touch()
-    with open(file_path_1, "a") as file:
+    with open(file_path_1, "a", encoding="utf-8") as file:
         file.write(encoded_data)
 
     file_path_2 = test_dir / "json_single_encoded.json"
     file_path_2.touch()
-    with open(file_path_2, "a") as file:
+    with open(file_path_2, "a", encoding="utf-8") as file:
         file.write(encoded_data)
 
     file_path_3 = test_dir / "json_double_encoded.json"
     file_path_3.touch()
-    with open(file_path_3, "a") as file:
+    with open(file_path_3, "a", encoding="utf-8") as file:
         file.write(double_encoded_data)
 
     file_path_4 = test_dir / "empty_json_file.json"
@@ -33,12 +33,12 @@ def temp_dir_with_json_files(tmp_path_factory):
 
     file_path_5 = test_dir / "malicious_file.json"
     file_path_5.touch()
-    with open(file_path_5, "a") as file:
+    with open(file_path_5, "a", encoding="utf-8") as file:
         file.write('print("this should not execute")')
 
     file_path_6 = test_dir / "invalid_json.json"
     file_path_6.touch()
-    with open(file_path_6, "a") as file:
+    with open(file_path_6, "a", encoding="utf-8") as file:
         file.write("(" + encoded_data + ")")
 
     return test_dir
@@ -75,10 +75,3 @@ def test_load_json_to_df_invalid_json(temp_dir_with_json_files):
     file_path = temp_dir_with_json_files / 'invalid_json.json'
     with pytest.raises(Exception):
         process.load_json_to_df(file_path)
-
-"""
-def test_load_json_to_df(temp_dir_with_2_json_files):
-    file_path = temp_dir_with_2_json_files / 'file_1.json'
-    df = process.load_json_to_df(file_path)
-    assert df.shape == (2,3)
-"""

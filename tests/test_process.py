@@ -23,7 +23,7 @@ def tmp_json_dir(tmp_path_factory):
             "zip_code": 56010}
         }]
 
-    with open(file_1, "a") as file:
+    with open(file_1, "a", encoding="utf-8") as file:
         file.write(json.dumps(json.dumps(raw_data)))
 
     file_2 = nested_dir / "empty_file.txt"

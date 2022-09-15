@@ -5,7 +5,7 @@ from process import process
 
 @pytest.fixture(scope="session")
 def temp_dir_json_files(tmp_path_factory):
-    """Create a temp directory with 2 JSON files"""
+    """A temperary directory with 2 JSON files"""
     test_dir = tmp_path_factory.mktemp("data")
 
     raw_data = [
@@ -29,7 +29,9 @@ def temp_dir_json_files(tmp_path_factory):
 
     file_path = test_dir / "test_file.json"
     file_path.touch()
-    with open(file_path, "a") as file:
+    with open(file_path, "a", encoding="utf-8") as file:
+        # Using double encoding of the data to mimick the format of the
+        # currrent client's data
         file.write(json.dumps(json.dumps(raw_data)))
 
     return test_dir
