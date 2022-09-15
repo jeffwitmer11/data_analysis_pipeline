@@ -244,6 +244,11 @@ def load_json_to_df(file_path):
 if __name__ == "__main__":
     process("data", os.path.join('output', 'processed_data.csv'))
 
+    df = pd.DataFrame({"A":["A", 1], "B":["B", 2]})
+    df
+    df == df.columns
+    any((df == df.columns).all(axis=1))
+
     """
     data = [
         {"id": 1, "user": {"first": "Coleen", "last": "Volk"}},

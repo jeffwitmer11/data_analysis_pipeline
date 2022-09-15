@@ -21,7 +21,7 @@ def temp_dir_json_files(tmp_path_factory):
             "email": "email@email.com",
             "info":
                 {"first_name": "Bob",
-                "middle_name": "The Maestro",
+                "middle_name": "c",
                 "last_name": "Cobb",
                 "zip_code": 56010}
                 }
@@ -46,15 +46,7 @@ def make_test_data_file(temp_dir_json_files):
 
     return make_data_file
 
-"""
-def test_factory(make_test_data_file):
-    my_data = make_test_data_file()
-    print(my_data.all_records)
-"""
-
 def test_DataFile_column_names(make_test_data_file):
-    #file_path = temp_dir_json_files / "test_file.json"
-    #data = process.DataFile(file_path)
     data = make_test_data_file()
     test_cols = ['foo', 'bar', 'baz']
     data.required_cols = test_cols
@@ -62,41 +54,23 @@ def test_DataFile_column_names(make_test_data_file):
     assert set(data.all_records.columns) == set(test_cols)
 
 def test_DataFile_num_records(make_test_data_file):
-    #file_path = temp_dir_json_files / "test_file.json"
-    #data = (process.DataFile(file_path).read_data())
     data = make_test_data_file()
     assert len(data.all_records) == 2
 
 def test_DataFile_skipped_processed(make_test_data_file):
-    #file_path = temp_dir_json_files / "test_file.json"
-    #data = (process.DataFile(file_path).read_data())
     data = make_test_data_file()
     assert data.num_processed + data.num_skipped == len(data.all_records)
 
 def test_DataFile_processed_records(make_test_data_file):
-    #file_path = temp_dir_json_files / "test_file.json"
-    #data = (process.DataFile(file_path)
-    #    .read_data()
-     #   .process_records())
-    #data = data.process_records()
     data = make_test_data_file()
-    print(data.num_processed)
-    print(data.processed_records)
-    print(data.records_info)
     assert data.num_processed == len(data.processed_records)
 
 def test_DataFile_metadata_for_every_record(make_test_data_file):
-    #file_path = temp_dir_json_files / "test_file.json"
-    #data = (process.DataFile(file_path)
-     #   .read_data()
-      #  .process_records())
     data = make_test_data_file()
     assert len(data.records_info) == len(data.all_records)
 
-def test_DataFile_metadata_joins_to_records(temp_dir_json_files):
-    file_path = temp_dir_json_files / "test_file.json"
-    data = (process.DataFile(file_path)
-        .read_data())
+def test_DataFile_metadata_joins_to_records(make_test_data_file):
+    data = make_test_data_file()
 
     n_records = len(data.all_records)
     random_index = random.sample(range(n_records, n_records*2), n_records)
@@ -104,32 +78,17 @@ def test_DataFile_metadata_joins_to_records(temp_dir_json_files):
     data.all_records["index"] = random_index
     data.all_records.set_index("index")
 
+    # Reprocess the data, need to ensure that the newly set index is retained
+    # when the data is processed
     data = data.process_records()
 
     assert data.all_records.index.equals(data.records_info.index)
 
 def test_DataFile_num_processed(make_test_data_file):
-    #file_path = temp_dir_json_files / "test_file.json"
-    #data = (process.DataFile(file_path)
-     #   .read_data()
-      #  .process_records())
     data = make_test_data_file()
     assert data.num_processed == sum(data.records_info["process"])
 
 def test_DataFile_num_skipped(make_test_data_file):
-    #file_path = temp_dir_json_files / "test_file.json"
-    #data = (process.DataFile(file_path)
-     #   .read_data()
-      #  .process_records())
     data = make_test_data_file()
     assert data.num_skipped == sum(data.records_info["skip"])
 
-
-
-
-# DataFile write output
-# DataFile set_records info
-# "skip" and "process" are returned
-
-# self.num_processed == nrow(processed_records)
-# self.num_processed and self.num_skipped match records_info
