@@ -242,3 +242,9 @@ def load_json_to_df(file_path):
 
 if __name__ == "__main__":
     process("data", os.path.join('output', 'processed_data.csv'))
+
+    df = pd.DataFrame({"A":["A", 1], "B":["c", 2]})
+    df
+    df.isin(df.columns)
+
+    not any(df.isin(df.columns).all(axis=1))
