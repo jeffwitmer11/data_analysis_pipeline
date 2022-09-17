@@ -105,28 +105,26 @@ class DataFile:
 
 
 def process(input_path, output_file_path):
-    """Process all JSON files stored in the data folder, write the processed
-    records to CSV
+    """Process all JSON files stored in a folder, write the processed
+    records to a CSV.
 
-    All JSON files in the data folder of the working directory are identified
-    and iteratively loaded.
-    Records selected to be processed are saved to the processed_data.csv.
+    All JSON files in the folder of the working directory are identified
+    and iteratively loaded (one at a time).
+    Records selected to be processed are saved to the to a csv.
     Descriptive analytics are calculated and displayed in the console.
 
     """
-    #data_dir = 'data'
     file_list = get_files_from_path(path=input_path, extension='.json')
     n_files = len(file_list)
 
-    # This program iteratively appends data to the output file. It checks if one
+    # This program iteratively appends data to the output file. It checks if the output file
     # already exists prior to running, if it does, delete it. Effectively
     # overwriting any past output data files
-    #output_file_path = os.path.join(output_path, 'processed_data.csv')
     if os.path.exists(output_file_path):
         print("Overwriting: " + str(output_file_path))
         os.remove(output_file_path)
 
-    # Initialize object to hold analyze
+    # Initialize objects to hold the analysis results
     zip_codes = pd.DataFrame()
     top_num_proc = pd.Series(dtype="int64")
     top_num_skip = pd.Series(dtype="int64")
@@ -207,9 +205,59 @@ def get_files_from_path(path: str = '.', extension: str = None) -> list:
                 result.append(filepath)
     return result
 
+def decode_json_string(file_path):
+    file_extention = os.path.splitext(file_path)[-1].lower()
+    if file_extention != ".json":
+        raise ValueError('File path has invalid file extention. File extention must be ".json"')
+
+    with open(file_path, "r", encoding="utf-8") as file:
+        file_text = file.read()
+    # TODO add comment about why I am not using eval
+    # TODO add comments explaining double encoding
+
+    # Return an empty DataFrame with the required columns
+    if file_text == '':
+        json_decoded = {}
+
+    # Deserialize the JSON string
+    else:
+        json_decoded = json.loads(file_text)
+
+        # The client's data is often stored as double encoded JSON strng.
+        # We choose not to `eval` this string inorder to mitigate code injection.
+        # Rather than `eval` we can just deserialze the srting a second time.
+        if isinstance(json_decoded, str):
+            json_decoded = json.loads(json_decoded)
+
+    return json_decoded
+
+def normalize_json_with_cols(json_decoded, required_cols):
+
+    df = pd.json_normalize(json_decoded)
+
+    if df.empty:
+        df = df.reindex(required_cols, axis=1)
+
+    else:
+        for col in required_cols:
+            matched_cols = df.filter(like=col).columns
+            if any(matched_cols):
+                df[col] = df[matched_cols].bfill(axis=1).iloc[:, 0]
+        print("here")
+        print(matched_cols)
+        print(df)
+
+    return df
+
 def load_json_to_df(file_path):
-    """Load a JSON file to a pandas DataFrame"""
-    # TODO change this to match extention in get files from path
+    required_cols = ["first_name", "middle_name", "last_name", "zip_code"]
+    json_decoded = decode_json_string(file_path)
+    df = normalize_json_with_cols(json_decoded, required_cols)
+    print(df)
+    return df
+
+    """
+    Load a JSON file to a pandas DataFrame
     file_extention = os.path.splitext(file_path)[-1].lower()
     if file_extention != ".json":
         raise ValueError('File path has invalid file extention. File extention must be ".json"')
@@ -220,31 +268,46 @@ def load_json_to_df(file_path):
     # TODO add comments explaining double encoding
     required_cols = ["first_name", "middle_name", "last_name", "zip_code"]
 
+    # Return an empty DataFrame with the required columns
     if file_text == '':
         df = pd.DataFrame()
         df = df.reindex(required_cols, axis=1)
 
+    # Deserialize the JSON string
     else:
         json_dict = json.loads(file_text)
+
+        # The client's data is often stored as double encoded JSON strng.
+        # We choose not to `eval` this string inorder to mitigate code injection.
+        # Rather than `eval` we can just deserialze the srting a second time.
         if isinstance(json_dict, str):
             json_dict = json.loads(json_dict)
 
         df = pd.json_normalize(json_dict)
-        #df = df.reindex(required_cols, axis=1)
-        #print(df.columns)
+
         for col in required_cols:
             matched_cols = df.filter(like=col).columns
             if any(matched_cols):
                 df[col] = df[matched_cols].bfill(axis=1).iloc[:, 0]
+    """
 
-    return df
 
 
 if __name__ == "__main__":
     process("data", os.path.join('output', 'processed_data.csv'))
 
-    df = pd.DataFrame({"A":["A", 1], "B":["c", 2]})
-    df
-    df.isin(df.columns)
+    file_path = "data/altius/group00/client00/82409.json"
+    df = load_json_to_df(file_path)
+    print(df)
 
-    not any(df.isin(df.columns).all(axis=1))
+
+    json_decoded = decode_json_string(file_path)
+    json_decoded
+
+
+
+    json_dict = {}
+    df = pd.json_normalize(json_dict)
+    required_cols = ["first_name", "middle_name", "last_name", "zip_code"]
+    df2 = df.reindex(required_cols, axis=1)
+    d
