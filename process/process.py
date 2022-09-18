@@ -24,6 +24,7 @@ Print final result to console
 import json
 import os
 import sys
+import warnings
 import pandas as pd
 
 class DataFile:
@@ -226,13 +227,21 @@ def decode_json_string(file_path):
 
     # Deserialize the JSON string
     else:
-        json_decoded = json.loads(file_text)
+        try:
+            json_decoded = json.loads(file_text)
+        except json.decoder.JSONDecodeError:
+            warnings.warn("Warning: Could not decode JSON file at " + str(file_path))
+            json_decoded = {}
 
         # The client's data is often stored as double encoded JSON strng.
         # We choose not to `eval` this string inorder to mitigate code injection.
         # Rather than `eval` we can just deserialze the srting a second time.
         if isinstance(json_decoded, str):
-            json_decoded = json.loads(json_decoded)
+            try:
+                json_decoded = json.loads(json_decoded)
+            except json.decoder.JSONDecodeError:
+                warnings.warn("Warning: Could not decode JSON file at " + str(file_path))
+                json_decoded = {}
 
     return json_decoded
 

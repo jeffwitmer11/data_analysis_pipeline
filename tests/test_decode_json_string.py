@@ -1,10 +1,9 @@
 import json
 import pytest
 from process import process
-
+"""
 @pytest.fixture(scope="session")
 def temp_dir_with_json_files(tmp_path_factory):
-    """Create a temp directory with no JSON files"""
     test_dir = tmp_path_factory.mktemp("data")
 
     dict_not_encoded = [{"A":"foo", "B":123}, {"C": "bar", "A":"baz"}]
@@ -41,6 +40,7 @@ def temp_dir_with_json_files(tmp_path_factory):
         file.write("(" + encoded_data + ")")
 
     return test_dir
+"""
 
 def test_decode_json_string_fails_with_text_file(temp_dir_with_json_files):
     file_path = temp_dir_with_json_files / 'json_single_encoded.txt'
@@ -67,10 +67,14 @@ def test_decode_json_string_double_encoded(temp_dir_with_json_files):
 
 def test_decode_json_string_does_not_eval(temp_dir_with_json_files):
     file_path = temp_dir_with_json_files / 'malicious_file.json'
-    with pytest.raises(Exception):
+    with pytest.warns(UserWarning):
         process.decode_json_string(file_path)
+    #with pytest.raises(Exception):
+        #process.decode_json_string(file_path)
 
 def test_decode_json_string_invalid_json(temp_dir_with_json_files):
     file_path = temp_dir_with_json_files / 'invalid_json.json'
-    with pytest.raises(Exception):
+    with pytest.warns(UserWarning):
         process.decode_json_string(file_path)
+    #with pytest.raises(Exception):
+        #process.decode_json_string(file_path)
