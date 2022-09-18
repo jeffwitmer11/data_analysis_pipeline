@@ -41,7 +41,7 @@ class DataFile:
     def read_data(self):
         """Read a JSON file and store all records read in"""
 
-        df = self.load_json_to_df()
+        df = self.load_json()
 
         # Downstream analysis will require certian columns to be preset. Add
         # them if they are missing.
@@ -69,7 +69,7 @@ class DataFile:
 
         return self
 
-    def load_json_to_df(self):
+    def load_json(self):
         json_decoded = decode_json_string(self.file_path)
         df = normalize_json_with_cols(json_decoded, self.required_cols)
         return df
@@ -236,9 +236,12 @@ def decode_json_string(file_path):
 
     return json_decoded
 
-def normalize_json_with_cols(json_decoded, required_cols):
+def normalize_json_with_cols(json_decoded, required_cols=None):
 
     df = pd.json_normalize(json_decoded)
+
+    if required_cols is None:
+        required_cols = df.columns
 
     if df.empty:
         df = df.reindex(required_cols, axis=1)
@@ -302,9 +305,40 @@ if __name__ == "__main__":
     json_decoded = decode_json_string(file_path)
     type(json_decoded)
 
+    cols1 = ["A", "B", "C", "D"]
+    cols2 = ["D", "B"]
+
+    cols2 in cols1
+    all([item in cols1 for item in cols2])
 
 
-    json_dict = {}
+    json_dict = [
+            {"user1":
+                {"first_name": "Darlene",
+                "middle_name": "Brenda",
+                "last_name": "Puckett",
+                "zip_code": 24065}
+            },
+
+            {"user2":
+                {"age": 99,
+                "email": "email@email.com",
+                "info":
+                    {"first_name": "Bob",
+                    "middle_name": "c",
+                    "last_name": "Cobb",
+                    "zip_code": 56010}
+                    }
+            }]
+
+    required_cols = ["first_name", "middle_name", "last_name", "zip_code"]
+    df = normalize_json_with_cols(json_dict, required_cols)
+    not df[required_cols].isnull().any(axis=None)
+
+
     df = pd.json_normalize(json_dict)
+
+
+    df
     required_cols = ["first_name", "middle_name", "last_name", "zip_code"]
     df2 = df.reindex(required_cols, axis=1)
