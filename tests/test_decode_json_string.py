@@ -1,6 +1,5 @@
-import pytest
-import pandas as pd
 import json
+import pytest
 from process import process
 
 @pytest.fixture(scope="session")
@@ -43,35 +42,35 @@ def temp_dir_with_json_files(tmp_path_factory):
 
     return test_dir
 
-def test_load_json_to_df_fails_with_text_file(temp_dir_with_json_files):
+def test_decode_json_string_fails_with_text_file(temp_dir_with_json_files):
     file_path = temp_dir_with_json_files / 'json_single_encoded.txt'
     with pytest.raises(Exception):
-        process.load_json_to_df(file_path)
+        process.decode_json_string(file_path)
 
-def test_load_json_to_df_returns_pandas_df(temp_dir_with_json_files):
+def test_decode_json_string_returns_decoded(temp_dir_with_json_files):
     file_path = temp_dir_with_json_files / 'json_double_encoded.json'
-    df = process.load_json_to_df(file_path)
-    assert isinstance(df, pd.DataFrame)
+    df = process.decode_json_string(file_path)
+    assert not isinstance(df, str)
 
-def test_load_json_to_df_empty_file(temp_dir_with_json_files):
+def test_decode_json_string_empty_file(temp_dir_with_json_files):
     file_path = temp_dir_with_json_files / 'empty_json_file.json'
-    df = process.load_json_to_df(file_path)
-    assert df.empty | df.isnull().all().all()
+    df = process.decode_json_string(file_path)
+    assert not bool(df)
 
-def test_load_json_to_df_single_encoded(temp_dir_with_json_files):
+def test_decode_json_string_single_encoded(temp_dir_with_json_files):
     file_path = temp_dir_with_json_files / 'json_single_encoded.json'
-    process.load_json_to_df(file_path)
+    process.decode_json_string(file_path)
 
-def test_load_json_to_df_double_encoded(temp_dir_with_json_files):
+def test_decode_json_string_double_encoded(temp_dir_with_json_files):
     file_path = temp_dir_with_json_files / 'json_double_encoded.json'
-    process.load_json_to_df(file_path)
+    process.decode_json_string(file_path)
 
-def test_load_json_to_df_does_not_eval(temp_dir_with_json_files):
+def test_decode_json_string_does_not_eval(temp_dir_with_json_files):
     file_path = temp_dir_with_json_files / 'malicious_file.json'
     with pytest.raises(Exception):
-        process.load_json_to_df(file_path)
+        process.decode_json_string(file_path)
 
-def test_load_json_to_df_invalid_json(temp_dir_with_json_files):
+def test_decode_json_string_invalid_json(temp_dir_with_json_files):
     file_path = temp_dir_with_json_files / 'invalid_json.json'
     with pytest.raises(Exception):
-        process.load_json_to_df(file_path)
+        process.decode_json_string(file_path)

@@ -41,7 +41,7 @@ class DataFile:
     def read_data(self):
         """Read a JSON file and store all records read in"""
 
-        df = load_json_to_df(self.file_path)
+        df = self.load_json_to_df()
 
         # Downstream analysis will require certian columns to be preset. Add
         # them if they are missing.
@@ -68,6 +68,11 @@ class DataFile:
         df.to_csv(file_path, mode='a', header=not os.path.exists(file_path))
 
         return self
+
+    def load_json_to_df(self):
+        json_decoded = decode_json_string(self.file_path)
+        df = normalize_json_with_cols(json_decoded, self.required_cols)
+        return df
 
     def determine_process_or_skip(self, df):
         """Determine records to be skipped and those to be processed
@@ -243,18 +248,10 @@ def normalize_json_with_cols(json_decoded, required_cols):
             matched_cols = df.filter(like=col).columns
             if any(matched_cols):
                 df[col] = df[matched_cols].bfill(axis=1).iloc[:, 0]
-        print("here")
-        print(matched_cols)
-        print(df)
 
     return df
 
-def load_json_to_df(file_path):
-    required_cols = ["first_name", "middle_name", "last_name", "zip_code"]
-    json_decoded = decode_json_string(file_path)
-    df = normalize_json_with_cols(json_decoded, required_cols)
-    print(df)
-    return df
+
 
     """
     Load a JSON file to a pandas DataFrame
@@ -297,12 +294,13 @@ if __name__ == "__main__":
     process("data", os.path.join('output', 'processed_data.csv'))
 
     file_path = "data/altius/group00/client00/82409.json"
+    file_path = "data/empty_file.json"
     df = load_json_to_df(file_path)
     print(df)
 
 
     json_decoded = decode_json_string(file_path)
-    json_decoded
+    type(json_decoded)
 
 
 
@@ -310,4 +308,3 @@ if __name__ == "__main__":
     df = pd.json_normalize(json_dict)
     required_cols = ["first_name", "middle_name", "last_name", "zip_code"]
     df2 = df.reindex(required_cols, axis=1)
-    d
