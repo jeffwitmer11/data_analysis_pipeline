@@ -1,5 +1,4 @@
 import pytest
-import json
 import random
 from process import process
 

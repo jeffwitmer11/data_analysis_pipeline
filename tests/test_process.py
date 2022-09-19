@@ -1,6 +1,5 @@
 """ Unit tests of process.py """
 import os
-import json
 import pytest
 import pandas as pd
 from process import process
@@ -45,8 +44,6 @@ def test_process_overwrites_output_file(tmp_output_dir):
     second_file_time = os.path.getmtime(output_file_path)
 
     assert first_file_time < second_file_time
-
-
 
 def test_process_no_data(temp_dir_with_json_files, tmp_output_dir):
     """Should not error when no data exists"""

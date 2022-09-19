@@ -1,6 +1,4 @@
 import pytest
-import json
-import pandas as pd
 from process import process
 
 @pytest.fixture(scope="session")

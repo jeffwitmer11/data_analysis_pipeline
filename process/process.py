@@ -1,31 +1,32 @@
 """
 Manifold Data Processing Application
 Author: Jeff Witmer
-Last Updated: September 5, 2022
+Last Updated: September 18, 2022
 Created for Manifold Inc.
 
 About
 -----
-The Manifold Data Processing Application reads a dataset stored as individual
+The Manifold Data Processing Application reads a dataset, stored as individual
 JSON files, processes the data, writes the results to a structured data set, and
 displays the results of some data analysis.
 
 Design
 ------
-Identify all JSON files in the data folder
-For each json file:
-   Read each data file as a Dataframe, one at a time
-   Calculate required information
-   Determine which records should be processed and which should be skipped
-   Perform analysis and save the results in memory
-Write the processed records to disk
-Print final result to console
+1) Identify all JSON files in the data folder
+2) For each json file:
+   * Read each data file as a Dataframe, one at a time
+   * Calculate required information
+   * Determine which records should be processed and which should be skipped
+   * Perform analysis and save the results in memory
+3) Write the processed records to disk
+4) Print final result to console
 """
-import json
 import os
 import sys
+import json
 import warnings
 import pandas as pd
+
 
 class DataFile:
     """A data file and metadata, initialized using the path to a JSON file"""
@@ -182,9 +183,11 @@ def process(input_path, output_file_path):
     print()
 
     # TODO: Reformat outputs
-    print("Top Zip Codes by Number of Unique Last Names")
-    print(zip_codes)
-    print()
+    #print("Top Zip Codes by Number of Unique Last Names")
+    #print(zip_codes)
+    #zip_codes
+    zip_codes.rename({"last_name":"num_last_names"}).to_csv("output/zip_codes.csv")
+    #print()
 
     print("Top Files by Records Skipped")
     print(top_num_skip)
@@ -195,7 +198,6 @@ def process(input_path, output_file_path):
     print()
 
     return 0
-
 
 def get_files_from_path(path: str = '.', extension: str = None) -> list:
     """return list of files from path"""
@@ -212,6 +214,7 @@ def get_files_from_path(path: str = '.', extension: str = None) -> list:
     return result
 
 def decode_json_string(file_path):
+    """ This a docstring """
     file_extention = os.path.splitext(file_path)[-1].lower()
     if file_extention != ".json":
         raise ValueError('File path has invalid file extention. File extention must be ".json"')
@@ -246,6 +249,7 @@ def decode_json_string(file_path):
     return json_decoded
 
 def normalize_json_with_cols(json_decoded, required_cols=None):
+    """ This a docstring """
 
     df = pd.json_normalize(json_decoded)
 
@@ -264,90 +268,5 @@ def normalize_json_with_cols(json_decoded, required_cols=None):
     return df
 
 
-
-    """
-    Load a JSON file to a pandas DataFrame
-    file_extention = os.path.splitext(file_path)[-1].lower()
-    if file_extention != ".json":
-        raise ValueError('File path has invalid file extention. File extention must be ".json"')
-
-    with open(file_path, "r", encoding="utf-8") as file:
-        file_text = file.read()
-    # TODO add comment about why I am not using eval
-    # TODO add comments explaining double encoding
-    required_cols = ["first_name", "middle_name", "last_name", "zip_code"]
-
-    # Return an empty DataFrame with the required columns
-    if file_text == '':
-        df = pd.DataFrame()
-        df = df.reindex(required_cols, axis=1)
-
-    # Deserialize the JSON string
-    else:
-        json_dict = json.loads(file_text)
-
-        # The client's data is often stored as double encoded JSON strng.
-        # We choose not to `eval` this string inorder to mitigate code injection.
-        # Rather than `eval` we can just deserialze the srting a second time.
-        if isinstance(json_dict, str):
-            json_dict = json.loads(json_dict)
-
-        df = pd.json_normalize(json_dict)
-
-        for col in required_cols:
-            matched_cols = df.filter(like=col).columns
-            if any(matched_cols):
-                df[col] = df[matched_cols].bfill(axis=1).iloc[:, 0]
-    """
-
-
-
 if __name__ == "__main__":
     process("data", os.path.join('output', 'processed_data.csv'))
-
-    file_path = "data/altius/group00/client00/82409.json"
-    file_path = "data/empty_file.json"
-    df = load_json_to_df(file_path)
-    print(df)
-
-
-    json_decoded = decode_json_string(file_path)
-    type(json_decoded)
-
-    cols1 = ["A", "B", "C", "D"]
-    cols2 = ["D", "B"]
-
-    cols2 in cols1
-    all([item in cols1 for item in cols2])
-
-
-    json_dict = [
-            {"user1":
-                {"first_name": "Darlene",
-                "middle_name": "Brenda",
-                "last_name": "Puckett",
-                "zip_code": 24065}
-            },
-
-            {"user2":
-                {"age": 99,
-                "email": "email@email.com",
-                "info":
-                    {"first_name": "Bob",
-                    "middle_name": "c",
-                    "last_name": "Cobb",
-                    "zip_code": 56010}
-                    }
-            }]
-
-    required_cols = ["first_name", "middle_name", "last_name", "zip_code"]
-    df = normalize_json_with_cols(json_dict, required_cols)
-    not df[required_cols].isnull().any(axis=None)
-
-
-    df = pd.json_normalize(json_dict)
-
-
-    df
-    required_cols = ["first_name", "middle_name", "last_name", "zip_code"]
-    df2 = df.reindex(required_cols, axis=1)
