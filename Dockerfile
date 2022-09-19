@@ -26,4 +26,4 @@ COPY ./test-requirements.txt .
 RUN python3 -m pip install -r test-requirements.txt
 
 # Pylint always returns an exit code, `||:` effectivley supresses it.
-CMD pylint process --good-names=i,j,df ||:
+CMD pylint process --good-names=i,j,df ||: ; pytest
