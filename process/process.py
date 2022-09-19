@@ -14,12 +14,12 @@ Design
 ------
 1) Identify all JSON files in the data folder
 2) For each json file:
-   * Read each data file as a Dataframe, one at a time
-   * Calculate required information
-   * Determine which records should be processed and which should be skipped
-   * Perform analysis and save the results in memory
-3) Write the processed records to disk
-4) Print final result to console
+    * Read each data file as a Dataframe, one at a time
+    * Calculate required information
+    * Determine which records should be processed and which should be skipped
+    * Perform analysis and save the results in memory
+    * Write the processed records to disk
+3) Write final analysis results to disk
 """
 import os
 import sys
@@ -111,7 +111,7 @@ class DataFile:
         self.num_skipped = sum(df_proc_skip["skip"])
 
 
-def process(input_path, output_file_path):
+def process(input_path, output_path):
     """Process all JSON files stored in a folder, write the processed
     records to a CSV.
 
@@ -127,6 +127,7 @@ def process(input_path, output_file_path):
     # This program iteratively appends data to the output file. It checks if the output file
     # already exists prior to running, if it does, delete it. Effectively
     # overwriting any past output data files
+    output_file_path = os.path.join(output_path, 'processed_records.csv')
     if os.path.exists(output_file_path):
         print("Overwriting: " + str(output_file_path))
         os.remove(output_file_path)
@@ -177,25 +178,21 @@ def process(input_path, output_file_path):
             .nlargest(10, "last_name")
         )
 
-    # TODO: number of duplicate IDs
     sys.stdout.write('\n')
     print("Data Processing Complete")
-    print()
+    print("Results saved to: " + output_file_path)
 
-    # TODO: Reformat outputs
-    #print("Top Zip Codes by Number of Unique Last Names")
-    #print(zip_codes)
-    #zip_codes
-    zip_codes.rename({"last_name":"num_last_names"}).to_csv("output/zip_codes.csv")
-    #print()
+    zip_codes.rename(columns={"last_name":"num_last_names"}, inplace=True)
+    zip_codes.to_csv(os.path.join(output_path, 'zip_codes.csv'))
 
-    print("Top Files by Records Skipped")
-    print(top_num_skip)
-    print()
+    top_num_skip.to_csv(os.path.join(output_path, "records_skipped.csv"),
+        index_label = "file", header = ["num_skipped"])
 
-    print("Top Files by Records Processed")
-    print(top_num_proc)
-    print()
+    top_num_proc.to_csv(os.path.join(output_path, "records_processed.csv"),
+        index_label = "file", header = ["num_processed"])
+
+    print("Data Analysis Processing Complete")
+    print("Results saved to: " + output_path)
 
     return 0
 
@@ -269,4 +266,6 @@ def normalize_json_with_cols(json_decoded, required_cols=None):
 
 
 if __name__ == "__main__":
-    process("data", os.path.join('output', 'processed_data.csv'))
+    process("data", "output")
+
+

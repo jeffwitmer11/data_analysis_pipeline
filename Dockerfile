@@ -19,7 +19,7 @@ RUN python3 -m pip install -r requirements.txt
 # add app
 COPY . .
 
-CMD [ "python", "./process/process2.py"]
+CMD [ "python", "./process/process.py"]
 
 FROM base as test
 COPY ./test-requirements.txt .
