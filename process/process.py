@@ -49,15 +49,11 @@ class DataFile:
         # them if they are missing.
         self.all_records = df.reindex(self.required_cols, axis=1)
 
-        # Determine and store summary info, can be used for downstream analysis
-        # TODO: Should I remove this since it is called in process_records
-        self.set_records_info(self.all_records)
-
         return self
 
     def process_records(self):
         """Set metadata about records and select the records to be processed"""
-        self.set_records_info(self.all_records)
+        self.set_records_info()
 
         df = self.all_records.loc[self.records_info["process"]]
         self.processed_records = df
@@ -72,11 +68,12 @@ class DataFile:
         return self
 
     def load_json(self):
+        """Read, deserialize, and normalize a JSON file"""
         json_decoded = decode_json_string(self.file_path)
         df = normalize_json_with_cols(json_decoded, self.required_cols)
         return df
 
-    def determine_process_or_skip(self, df):
+    def determine_process_or_skip(self):
         """Determine records to be skipped and those to be processed
 
         Records are skipped if all columns are missing data. `df` should only
@@ -88,6 +85,7 @@ class DataFile:
         "skip" and "process" specifying if a record should be skipped or
         processed respectively.
         """
+        df = self.all_records
         skipped_locs = (df
                         .isnull()
                         .all(axis=1)
@@ -100,10 +98,10 @@ class DataFile:
 
         return df_proc_skip
 
-    def set_records_info(self, df):
+    def set_records_info(self):
         """Set information about the records"""
 
-        df_proc_skip = self.determine_process_or_skip(df)
+        df_proc_skip = self.determine_process_or_skip()
         df_proc_skip["file_name"] = self.file_path
         self.records_info = df_proc_skip
 
@@ -192,7 +190,7 @@ def process(input_path, output_path):
         index_label = "file", header = ["num_processed"])
 
     print("Data Analysis Processing Complete")
-    print("Results saved to: " + output_path)
+    print("Results saved to: " + str(output_path))
 
     return 0
 
@@ -201,7 +199,7 @@ def get_files_from_path(path: str = '.', extension: str = None) -> list:
     # https://stackoverflow.com/q/68327646
 
     result = []
-    for subdir, dirs, files in os.walk(path):
+    for subdir, _, files in os.walk(path):
         for filename in files:
             filepath = subdir + os.sep + filename
             if extension is None:
@@ -218,10 +216,7 @@ def decode_json_string(file_path):
 
     with open(file_path, "r", encoding="utf-8") as file:
         file_text = file.read()
-    # TODO add comment about why I am not using eval
-    # TODO add comments explaining double encoding
 
-    # Return an empty DataFrame with the required columns
     if file_text == '':
         json_decoded = {}
 
@@ -267,5 +262,3 @@ def normalize_json_with_cols(json_decoded, required_cols=None):
 
 if __name__ == "__main__":
     process("data", "output")
-
-
